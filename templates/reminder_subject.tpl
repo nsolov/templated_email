@@ -1,0 +1,1 @@
+Don't miss your appointment {{appointment_date}}

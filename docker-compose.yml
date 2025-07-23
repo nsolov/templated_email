@@ -1,8 +1,5 @@
-version: '3.6'
 services:
   iris:
-    environment:
-      - SAMPLE_TOKEN=${SAMPLE_TOKEN}
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,7 +7,7 @@ services:
     command: --check-caps false --ISCAgent false
     ports:
       - 1972
-      - 52795:52773
+      - 52796:52773
       - 53773
     volumes:
       - ./:/home/irisowner/dev/
