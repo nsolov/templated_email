@@ -36,7 +36,7 @@ jobs:
     - name: Setup Cloud SDK
       uses: google-github-actions/setup-gcloud@v2.1.5
       with:
-        version: '327.0.0'
+        version: '531.0.0'
 
     - name: Authorize Docker push
       run: gcloud auth configure-docker
