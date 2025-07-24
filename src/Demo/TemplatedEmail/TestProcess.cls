@@ -38,7 +38,7 @@ Method OnRequest(
             },
             "year": "2025"
         }
-        set tRequest.BodyTemplateFilename = "t1.tpl"
+        set tRequest.BodyTemplateFilename = "reminder_body.tpl"
         set tRequest.SubjectTemplateFilename = "reminder_subject.tpl"
     }
     
