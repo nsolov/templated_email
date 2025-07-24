@@ -25,10 +25,17 @@ Method OnRequest(
     } elseif (pRequest.TemplateType = "file") {
         set tRequest.Data = {
             "name": "John Doe",
-            "appointment_date": "2025-08-05",
-            "appointment_time": "14:30",
-            "doctor_name": "Emily Carter",
-            "appointment_link": "https://wellivia.com/appointments/view/12345",
+            "session": {
+                "date": "2025-08-05",
+                "time": "10:00 AM",
+                "link": "https://wellivia.com/session/12345"
+            }, 
+            "service": {
+                "name": "Mindful Yoga Session"
+            },
+            "coach": {
+                "name": "Sophie Green"
+            },
             "year": "2025"
         }
         set tRequest.BodyTemplateFilename = "reminder_body.tpl"

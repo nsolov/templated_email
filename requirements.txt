@@ -1,2 +1,4 @@
 jinja2
 pandas
+css_inline==0.8.7
+pycmarkgfm

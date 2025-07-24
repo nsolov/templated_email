@@ -95,20 +95,7 @@
 
     <!-- Content -->
     <div class="content">
-      <p>Dear {{name}},</p>
-
-      <p>We hope you're feeling your best. This is a gentle reminder about your upcoming wellness session with Wellivia:</p>
-
-      <ul>
-        <li><strong>Date:</strong> {{session.date}}</li>
-        <li><strong>Time:</strong> {{session.time}}</li>
-        <li><strong>Service:</strong> {{service.name}}</li>
-        <li><strong>Coach:</strong> {{coach.name}}</li>
-      </ul>
-
-      <p>Taking time for yourself is essential. We're excited to welcome you to a moment of balance and care.</p>
-
-      <a href="{{session.link}}" class="button">View Session Details</a>
+      {{content}}
     </div>
 
     <!-- Footer -->
