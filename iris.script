@@ -3,7 +3,6 @@
     Do ##class(Security.Users).UnExpireUserPasswords("*")
 
     zn "USER"
-    zpm "install passwordless"
 
     zpm "load /home/irisowner/dev/ -dev -v"
 
