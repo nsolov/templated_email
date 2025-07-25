@@ -1,7 +1,7 @@
 Class TemplatedEmail.TemplateService Extends %RegisteredObject
 {
 
-/// basicTemplateFile - full filename of the basic template, that must have {{content}} block - 
+/// basicTemplateFile - full filename of the basic template, that must have {{content}} block -
 ///    {{content}} is replaced by HTML, generated from Markdown
 /// bodyMD - Markdown string
 /// newTemplateFile - full Filename where new template saved
@@ -21,19 +21,27 @@ ClassMethod buildTemplateFromMarkdown(
         while 'stream.AtEnd {
             set basicTemplate = basicTemplate _ stream.Read()
         }
-        
+
         // process Markdown
         set data = {"content": (..pyMarkdown(bodyMD))}
-        
+
         set newTemplate = ..pyRenderJinjaTemplate(basicTemplate, data)
+        set inlinedNewTemplate = ..pyCssInliner(newTemplate)
+
         set stream=##class(%Stream.FileCharacter).%New()
         set sc=stream.LinkToFile(newTemplateFile)
-        do stream.Write(newTemplate)
+        do stream.Write(inlinedNewTemplate)
         $$$ThrowOnError(stream.%Save())
         return $$$OK
     } catch ex {
         return ex.AsStatus()
     }
+}
+
+ClassMethod pyCssInliner(html As %String) As %String [ Language = python ]
+{
+	import css_inline
+	return css_inline.inline(html)
 }
 
 ClassMethod pyMarkdown(md As %String) As %String [ Language = python ]
@@ -64,7 +72,7 @@ ClassMethod pyRenderJinjaTemplate(
     import json
 
     tData = json.loads(data._ToJSON())
-    template = Template(htmlTemplate) 
+    template = Template(htmlTemplate)
 
     return template.render(**tData)
 }
