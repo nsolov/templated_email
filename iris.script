@@ -1,4 +1,3 @@
-    ;do $System.OBJ.LoadDir("/opt/irisbuild/src","ck",,1)
 
     zn "%SYS"
     Do ##class(Security.Users).UnExpireUserPasswords("*")
@@ -6,6 +5,9 @@
     zn "USER"
     zpm "install passwordless"
 
+    zpm "load /home/irisowner/dev/ -dev -v"
 
-    zpm "load /home/irisowner/dev/ -dev -v":1:1
+    do $System.OBJ.Import("/home/irisowner/dev/src/Demo","ck",,1)
+
+    do ##class(Demo.Setup).Setup()
     halt
