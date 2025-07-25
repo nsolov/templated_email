@@ -35,9 +35,9 @@ Method applySubjectTemplate(
         }
 
         set ..Subject = ##class(TemplatedEmail.TemplateService).pyRenderJinjaTemplate(subjectTemplate, data)
-        
+
         set ..IsHTML = 1
-        
+
         return $$$OK
     } catch ex {
         return ex.AsStatus()
@@ -66,13 +66,15 @@ Method applyBodyTemplate(
                 $$$ThrowStatus($$$ERROR(5001, "On of bodyTemplate or bodyTemplateFile must not be empty "))
             }
         }
-        
+
         set body = ##class(TemplatedEmail.TemplateService).pyRenderJinjaTemplate(bodyTemplate, data)
+        set inlinedBody = ##class(TemplatedEmail.TemplateService).pyCssInliner(body)
+
         do ..TextData.Rewind()
-        do ..TextData.Write(body)
-        
+        do ..TextData.Write(inlinedBody)
+
         set ..IsHTML = 1
-        
+
         return $$$OK
     } catch ex {
         return ex.AsStatus()

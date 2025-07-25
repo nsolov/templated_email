@@ -26,11 +26,10 @@ ClassMethod buildTemplateFromMarkdown(
         set data = {"content": (..pyMarkdown(bodyMD))}
 
         set newTemplate = ..pyRenderJinjaTemplate(basicTemplate, data)
-        set inlinedNewTemplate = ..pyCssInliner(newTemplate)
 
         set stream=##class(%Stream.FileCharacter).%New()
         set sc=stream.LinkToFile(newTemplateFile)
-        do stream.Write(inlinedNewTemplate)
+        do stream.Write(newTemplate)
         $$$ThrowOnError(stream.%Save())
         return $$$OK
     } catch ex {
