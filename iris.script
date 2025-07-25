@@ -1,7 +1,4 @@
 
-    zn "%SYS"
-    Do ##class(Security.Users).UnExpireUserPasswords("*")
-
     zn "USER"
 
     zpm "load /home/irisowner/dev/ -dev -v"
