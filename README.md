@@ -46,8 +46,8 @@ docker compose up -d
 4. On Production configuration page for "emails" Business Operation specify your smtp server, port and credentials
 5. Run production
 6. Run Test for TestProcess
-- specify your email
-- select "file" of "string"
+   - specify your email
+   - select "file" of "string"
 
 
 ### Online
