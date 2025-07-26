@@ -10,7 +10,7 @@ Class TemplatedEmail.EmailRequest Extends Ens.Request
 ///     Find out how much you won in the contest {{contest.name}}
 /// 
 /// Data:
-/// {   
+/// {
 ///     "contest": {
 ///         "name": "Contest Name"
 ///     },
@@ -18,10 +18,10 @@ Class TemplatedEmail.EmailRequest Extends Ens.Request
 ///         "name": "Real UserName"
 ///     },
 ///     "amount": 1000000
-/// } 
+/// }
 Property Data As %DynamicObject [ Required ];
 
-/// On of BodyTemplateFilename or BodyTemplate must be specified
+/// One of BodyTemplateFilename or BodyTemplate must be specified
 /// file name (directory should be defined in BusinessOperation Settings)
 Property BodyTemplateFilename As %String;
 
