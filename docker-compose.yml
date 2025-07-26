@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - INSTANCE_DEST=LOCAL
     restart: always
     command: --check-caps false --ISCAgent false
     ports:
