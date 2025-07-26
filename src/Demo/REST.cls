@@ -75,6 +75,7 @@ ClassMethod getTemplates() As %Status
                 "year": "2025"
             }
             set item.data = data.%ToJSON()
+            set item.subject = "Reminder: {{service.name}} with {{coach.name}} on {{session.date}}"
         }
         do res.%Push(item)
     }
@@ -94,14 +95,10 @@ ClassMethod sendEmail() As %Status
     set session = ""
     set tKey = ""
     for {
-        Set tKey = $ORDER(%request.CgiEnvs(tKey))
-        Quit:tKey="" 
-        If tKey?1"HTTP_"1.E {
-            // Determine the proper header name (will be all caps unfortunately)
-            Set tHeader = $PIECE(tKey,"HTTP_",2,*) // Copy the HTTP headers - except for certain ones.
-            If (tHeader '= "AUTHORIZATION") {
-                set session = $piece(%request.CgiEnvs(tKey)," ",2)
-            }
+        set tKey = $ORDER(%request.CgiEnvs(tKey))
+        quit:tKey="" 
+        if (tKey = "HTTP_AUTHORIZATION") {
+            set session = $piece(%request.CgiEnvs(tKey)," ",2)
         }
     }
 
