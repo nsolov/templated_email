@@ -129,34 +129,6 @@
       );
     }
 
-    function HtmlPreview({ html }) {
-    const iframeRef = React.useRef(null);
-
-    const handleLoad = () => {
-        const iframe = iframeRef.current;
-        if (!iframe) return;
-
-        const doc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (doc) {
-        doc.open();
-        doc.write(html || "");
-        doc.close();
-        }
-    };
-
-    return (
-        <iframe
-        ref={iframeRef}
-        onLoad={handleLoad}
-        className="w-full h-[500px] border rounded bg-white"
-        sandbox=""
-        title="Template Preview"
-        />
-    );
-    }
-
-    
-    
     function SendEmailTab({ user }) {
     const [templates, setTemplates] = useState([]);
     const [selectedName, setSelectedName] = useState("");
@@ -250,8 +222,8 @@
 
         {selectedName && (
             <>
-            <div>
-                <HtmlPreview html={htmlContent} />
+            <div className="border rounded p-4 bg-gray-50 overflow-auto max-h-[500px]">
+                <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
             </div>
 
             <div>
