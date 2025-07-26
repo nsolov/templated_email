@@ -130,56 +130,76 @@
     }
 
     function App() {
-      const [user, setUser] = useState(null);
-      const [tab, setTab] = useState("templates");
+    const [user, setUser] = useState(null);
+    const [tab, setTab] = useState("templates");
+    const [error, setError] = useState(null);
 
-      // Проверяем, есть ли код в URL
-      useEffect(() => {
+    useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
 
         if (code) {
-          axios.get(`/api/github-auth?code=${encodeURIComponent(code)}`)
+        axios.get(`/api/github-auth?code=${encodeURIComponent(code)}`)
             .then(res => {
-              setUser(res.data); // например: { login: "nikolay", email: "..." }
-              window.history.replaceState({}, "", window.location.pathname); // удаляем ?code из URL
+            const { name, email, session } = res.data;
+            setUser({ name, email, session });
+            localStorage.setItem("session_token", session);
+            window.history.replaceState({}, "", window.location.pathname); // clean ?code from URL
             })
             .catch(err => {
-              console.error("Auth failed", err);
+            console.error("Auth failed", err);
+            setError("Authentication error, please try again later.");
+            window.history.replaceState({}, "", window.location.pathname); // clean ?code
             });
         }
-      }, []);
+    }, []);
 
+    if (error) {
+        return (
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="bg-white p-6 rounded shadow-md text-center">
+            <h1 className="text-2xl font-bold mb-4">Authentication Failed</h1>
+            <p className="text-gray-600">{error}</p>
+            <a
+                href="/"
+                className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+                Go back
+            </a>
+            </div>
+        </div>
+        );
+    }
       if (!user) {
         return <LoginScreen />;
       }
 
       return (
-        <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow mt-8">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex space-x-4 border-b pb-2">
-              <button
-                className={`font-medium ${tab === 'templates' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-                onClick={() => setTab('templates')}
-              >
-                Templates
-              </button>
-              <button
-                className={`font-medium ${tab === 'send' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-                onClick={() => setTab('send')}
-              >
-                Send Email
-              </button>
-            </div>
-            <div className="text-sm text-gray-500">
-              Signed in as <span className="font-medium">{user.login}</span>
-            </div>
-          </div>
-
-          {tab === 'templates' ? <TemplatesTab /> : <div>Coming soon...</div>}
+    <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow mt-8">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex space-x-4 border-b pb-2">
+          <button
+            className={`font-medium ${tab === 'templates' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            onClick={() => setTab('templates')}
+          >
+            Templates
+          </button>
+          <button
+            className={`font-medium ${tab === 'send' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            onClick={() => setTab('send')}
+          >
+            Send Email
+          </button>
         </div>
-      );
-    }
+        <div className="text-sm text-gray-500">
+          Signed in as <span className="font-medium">{user.name}</span>
+        </div>
+      </div>
+
+      {tab === 'templates' ? <TemplatesTab /> : <div>Coming soon...</div>}
+    </div>
+  );
+}
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>

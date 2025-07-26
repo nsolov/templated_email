@@ -74,28 +74,46 @@ ClassMethod GetSSLConfiguration(host) As %String
   QUIT host
 }
 
+ClassMethod getRequest(host As %String) As %Net.HttpRequest
+{
+    set req = ##class(%Net.HttpRequest).%New()
+    set req.Server = host
+    set req.Https = 1
+    set req.SSLConfiguration = ..GetSSLConfiguration(req.Server)
+    return req
+}
+
 ClassMethod auth()
 {
     set code = %request.Data("code",1)
 
     /// get access_token
-    set req = ##class(%Net.HttpRequest).%New()
-    set req.Server = "github.com"
-    set req.Https = 1
-    set req.SSLConfiguration = ..GetSSLConfiguration(req.Server)
+    set req = ..getRequest("github.com")
     set req.ContentType = "application/json"
+    do req.SetHeader("Accept","application/json")
     
-    set data = {
+    
+    set data = { 
         "client_id": ($get(^github("clientid"))),
         "client_secret": ($get(^github("secret"))),
         "code": (code)
     }
+
     
     do req.EntityBody.Write(data.%ToJSON())
-    set sc = req.POST("/login/oauth/access_token")
+    set sc = req.Post("login/oauth/access_token")
+    
 
-    set jo = {}.%FromJSON(req.HttpResponse.Data)
-    set ^x = jo.%ToJSON()
+    set accessjo = {}.%FromJSON(req.HttpResponse.Data)
+    
+
+    set req = ..getRequest("api.github.com")
+    do req.SetHeader("Authorization","Bearer " _ accessjo."access_token")
+    set sc = req.Get("user")
+    
+    set userjo = {}.%FromJSON(req.HttpResponse.Data)
+    set res = ##class(Demo.Auth.User).getUser(userjo).getJson()
+    write res.%ToJSON()
     
 
     
