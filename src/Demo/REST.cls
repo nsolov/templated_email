@@ -1,5 +1,5 @@
 /// Only for demo
-Class Demo.TemplatedEmail.REST Extends %CSP.REST
+Class Demo.REST Extends %CSP.REST
 {
 
 Parameter HOMEDIR = "/home/irisowner/dev/templates/";
@@ -16,6 +16,9 @@ XData UrlMap
     <Route Url="/templates" Method="GET" Call="getTemplates" />
     <Route Url="/templates" Method="POST" Call="saveTemplate" />
     <Route Url="/send" Method="POST" Call="sendEmail"/>
+    
+    <Route Url="/github-auth" Method="GET" Call="auth"/>
+    
 </Routes>
 }
 
@@ -29,7 +32,7 @@ ClassMethod getTemplates() As %Status
     
     set res = []
     while rset.%Next() {
-        do res.%Push($p(rset.%Get("Name"), "/", *))
+        do res.%Push({"name":($p(rset.%Get("Name"), "/", *))})
     }
     write res.%ToJSON()
     return $$$OK
@@ -58,6 +61,45 @@ ClassMethod sendEmail() As %Status
         set tSC = tService.ProcessInput(msg,.output)
     }
     return tSC
+}
+
+ClassMethod GetSSLConfiguration(host) As %String
+{
+  NEW $NAMESPACE
+  SET $NAMESPACE = "%SYS"
+  
+  IF '##class(Security.SSLConfigs).Exists(host) {
+    DO ##class(Security.SSLConfigs).Create(host)
+  }
+  QUIT host
+}
+
+ClassMethod auth()
+{
+    set code = %request.Data("code",1)
+
+    /// get access_token
+    set req = ##class(%Net.HttpRequest).%New()
+    set req.Server = "github.com"
+    set req.Https = 1
+    set req.SSLConfiguration = ..GetSSLConfiguration(req.Server)
+    set req.ContentType = "application/json"
+    
+    set data = {
+        "client_id": ($get(^github("clientid"))),
+        "client_secret": ($get(^github("secret"))),
+        "code": (code)
+    }
+    
+    do req.EntityBody.Write(data.%ToJSON())
+    set sc = req.POST("/login/oauth/access_token")
+
+    set jo = {}.%FromJSON(req.HttpResponse.Data)
+    set ^x = jo.%ToJSON()
+    
+
+    
+    return $$$OK
 }
 
 }

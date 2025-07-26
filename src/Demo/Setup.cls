@@ -33,7 +33,7 @@ ClassMethod createRESTApp(namespace) As %Status
   write "Create web application /api ...", !
 
   set webName = "/api"
-  set webProperties("DispatchClass") = "Demo.TemplatedEmail.REST"
+  set webProperties("DispatchClass") = "Demo.REST"
   set webProperties("NameSpace") = namespace
   set webProperties("Enabled") = 1
   set webProperties("AutheEnabled") = 64
