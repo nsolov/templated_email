@@ -39,7 +39,7 @@ Method OnRequest(
             "year": "2025"
         }
         set tRequest.BodyTemplateFilename = "reminder_body.tpl"
-        set tRequest.SubjectTemplateFilename = "reminder_subject.tpl"
+        set tRequest.SubjectTemplateFilename = "subject/reminder_subject.tpl"
     }
     
     Set tSC = ..SendRequestSync("emails", tRequest, .tResponseFromBO)
