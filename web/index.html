@@ -132,19 +132,22 @@
     function HtmlPreview({ html }) {
     const iframeRef = React.useRef(null);
 
-    React.useEffect(() => {
+    const handleLoad = () => {
         const iframe = iframeRef.current;
-        if (!iframe || !iframe.contentDocument) return;
+        if (!iframe) return;
 
-        const doc = iframe.contentDocument;
+        const doc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (doc) {
         doc.open();
         doc.write(html || "");
         doc.close();
-    }, [html]);
+        }
+    };
 
     return (
         <iframe
         ref={iframeRef}
+        onLoad={handleLoad}
         className="w-full h-[500px] border rounded bg-white"
         sandbox=""
         title="Template Preview"
