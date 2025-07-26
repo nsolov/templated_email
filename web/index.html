@@ -53,11 +53,16 @@
     }
 
     function TemplatesTab() {
-      const [templates, setTemplates] = useState([]);
-      const [selectedTemplateName, setSelectedTemplateName] = useState(null);
-      const [templateContent, setTemplateContent] = useState('');
-      const [showModal, setShowModal] = useState(false);
-      const [loading, setLoading] = useState(false);
+        const [templates, setTemplates] = useState([]);
+        const [selectedTemplateName, setSelectedTemplateName] = useState(null);
+        const [templateContent, setTemplateContent] = useState('');
+        const [showModal, setShowModal] = useState(false);
+        const [loading, setLoading] = useState(false);
+        const [showAddForm, setShowAddForm] = useState(false);
+        const [newName, setNewName] = useState("");
+        const [newContent, setNewContent] = useState("");
+        const [submitting, setSubmitting] = useState(false);
+        const [addError, setAddError] = useState(null);
 
       useEffect(() => {
         axios.get('/api/templates')
@@ -101,9 +106,91 @@
             </tbody>
           </table>
 
-          <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-            Add
-          </button>
+            <button
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            onClick={() => setShowAddForm(true)}
+            >
+                Add
+            </button>
+            
+            {showAddForm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div className="bg-white p-6 rounded-lg max-w-xl w-full relative">
+                <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-black"
+                    onClick={() => setShowAddForm(false)}
+                >
+                    &#215;
+                </button>
+                <h3 className="text-lg font-semibold mb-4">Add New Template</h3>
+
+                <div className="mb-4">
+                    <label className="block mb-1 text-sm font-medium">Base template</label>
+                    <input
+                    type="text"
+                    value="main.tpl"
+                    disabled
+                    className="w-full p-2 border rounded bg-gray-100"
+                    />
+                </div>
+
+                <div className="mb-4">
+                    <label className="block mb-1 text-sm font-medium">New template name</label>
+                    <input
+                    type="text"
+                    value={newName}
+                    onChange={e => setNewName(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    placeholder="example.tpl"
+                    />
+                </div>
+
+                <div className="mb-4">
+                    <label className="block mb-1 text-sm font-medium">Content (HTML)</label>
+                    <textarea
+                    rows={10}
+                    value={newContent}
+                    onChange={e => setNewContent(e.target.value)}
+                    className="w-full p-2 border rounded font-mono text-sm"
+                    placeholder="Enter HTML content here..."
+                    />
+                </div>
+
+                {addError && (
+                    <div className="text-red-600 text-sm mb-2">{addError}</div>
+                )}
+
+                <button
+                    onClick={async () => {
+                    setSubmitting(true);
+                    setAddError(null);
+                    try {
+                        await axios.post("/api/templates", {
+                        name: newName,
+                        body: newContent
+                        });
+                        setShowAddForm(false);
+                        setNewName("");
+                        setNewContent("");
+                        // reload list
+                        const res = await axios.get("/api/templates");
+                        setTemplates(res.data);
+                    } catch (err) {
+                        console.error(err);
+                        setAddError("Failed to save template.");
+                    } finally {
+                        setSubmitting(false);
+                    }
+                    }}
+                    disabled={submitting || !newName || !newContent}
+                    className="w-full py-2 px-4 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                    {submitting ? "Saving..." : "Save"}
+                </button>
+                </div>
+            </div>
+            )}
+
 
           {showModal && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -223,7 +310,7 @@
         {selectedName && (
             <>
             <div className="border rounded p-4 bg-gray-50 overflow-auto max-h-[500px]">
-                <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                <pre className="text-sm whitespace-pre-wrap">{htmlContent}</pre>
             </div>
 
             <div>
