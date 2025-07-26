@@ -133,12 +133,13 @@
     const iframeRef = React.useRef(null);
 
     React.useEffect(() => {
-        if (iframeRef.current) {
-        const doc = iframeRef.current.contentDocument;
+        const iframe = iframeRef.current;
+        if (!iframe || !iframe.contentDocument) return;
+
+        const doc = iframe.contentDocument;
         doc.open();
         doc.write(html || "");
         doc.close();
-        }
     }, [html]);
 
     return (
@@ -146,9 +147,12 @@
         ref={iframeRef}
         className="w-full h-[500px] border rounded bg-white"
         sandbox=""
+        title="Template Preview"
         />
     );
     }
+
+    
     
     function SendEmailTab({ user }) {
     const [templates, setTemplates] = useState([]);
