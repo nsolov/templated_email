@@ -1,1 +1,1 @@
-Don't miss your appointment {{appointment_date}}
+Reminder: {{service.name}} with {{coach.name}} on {{session.date}}

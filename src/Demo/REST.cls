@@ -91,11 +91,29 @@ ClassMethod saveTemplate() As %Status
 
 ClassMethod sendEmail() As %Status
 {
+    set session = ""
+    set tKey = ""
+    for {
+        Set tKey = $ORDER(%request.CgiEnvs(tKey))
+        Quit:tKey="" 
+        If tKey?1"HTTP_"1.E {
+            // Determine the proper header name (will be all caps unfortunately)
+            Set tHeader = $PIECE(tKey,"HTTP_",2,*) // Copy the HTTP headers - except for certain ones.
+            If (tHeader '= "AUTHORIZATION") {
+                set session = $piece(%request.CgiEnvs(tKey)," ",2)
+            }
+        }
+    }
+
+    set user = ##class(Demo.Auth.User).SessionIndexOpen(session)
+    if ('$isobject(user) ) {
+        return $$$ERROR(5001,"User Not Found")
+    }
+    
     set content = ##class(%Library.DynamicObject).%FromJSON(%request.Content)
     
     set msg = ##class(TemplatedEmail.EmailRequest).%New()
-    set msg.Recipients = content.to
-    set msg.FromAddress = $get(^fromAddress) 
+    set msg.Recipients = user.Email
     set msg.BodyTemplateFilename = content.template
     set msg.SubjectTemplate = content.subject
     set msg.Data = {}.%FromJSON(content.data)

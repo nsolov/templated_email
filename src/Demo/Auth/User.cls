@@ -8,6 +8,8 @@ Property Name As %String(MAXLEN = 1000);
 
 Property Session As %String(MAXLEN = 1000);
 
+Index SessionIndex On Session [ Unique ];
+
 Index EmailIndex On Email [ Unique ];
 
 ClassMethod getUser(userjo As %DynamicObject) As Demo.Auth.User
