@@ -1,17 +1,15 @@
 Class Demo.TemplatedEmail.TestProcess Extends Ens.BusinessProcess
 {
 
-Method OnRequest(
-	pRequest As Demo.TemplatedEmail.TestRequest,
-	Output response As %Library.Persistent) As %Status
+Method OnRequest(pRequest As Demo.TemplatedEmail.TestRequest, Output response As %Library.Persistent) As %Status
 {
     set tRequest = ##class(TemplatedEmail.EmailRequest).%New()
     set tRequest.Recipients = pRequest.To
-    
-    set tRequest.FromAddress = "nsolov@nsolov.com"
-    
+
+    set tRequest.FromAddress = pRequest.From
+
     if (pRequest.TemplateType = "string") {
-        set tRequest.Data = { 
+        set tRequest.Data = {
             "contest": {
                 "name": "Contest Name"
             },
@@ -29,7 +27,7 @@ Method OnRequest(
                 "date": "2025-08-05",
                 "time": "10:00 AM",
                 "link": "https://wellivia.com/session/12345"
-            }, 
+            },
             "service": {
                 "name": "Mindful Yoga Session"
             },
@@ -41,9 +39,9 @@ Method OnRequest(
         set tRequest.BodyTemplateFilename = "reminder_body.tpl"
         set tRequest.SubjectTemplateFilename = "subject/reminder_subject.tpl"
     }
-    
+
     Set tSC = ..SendRequestSync("emails", tRequest, .tResponseFromBO)
-    
+
     return tSC
 }
 
