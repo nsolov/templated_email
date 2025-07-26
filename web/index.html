@@ -64,6 +64,12 @@
         const [submitting, setSubmitting] = useState(false);
         const [addError, setAddError] = useState(null);
 
+      const validateTemplateName = (name) => {
+        if (!name) return "Template name is required.";
+        if (!/^[\w\-]+\.tpl$/.test(name)) return "Name must be letters, numbers, dashes, and end with .tpl";
+        return null;
+      };
+
       useEffect(() => {
         axios.get('/api/templates')
           .then(res => setTemplates(res.data))
@@ -164,6 +170,11 @@
                     onClick={async () => {
                     setSubmitting(true);
                     setAddError(null);
+                    const err = validateTemplateName(newName);
+                    if (err) {
+                      setAddError(err);
+                      return;
+                    }
                     try {
                         await axios.post("/api/templates", {
                         name: newName,
