@@ -14,12 +14,28 @@ XData UrlMap
 {
 <Routes>
     <Route Url="/templates" Method="GET" Call="getTemplates" />
+    <Route Url="/templates/:name" Method="GET" Call="getTemplate" />
     <Route Url="/templates" Method="POST" Call="saveTemplate" />
     <Route Url="/send" Method="POST" Call="sendEmail"/>
     
     <Route Url="/github-auth" Method="GET" Call="auth"/>
     
 </Routes>
+}
+
+ClassMethod getTemplate(name As %String) As %Status
+{
+    set fullname = ..#HOMEDIR_name
+    if '##class(%File).Exists(fullname) {
+        $$$ThrowStatus($$$ERROR(1101, name))
+    }
+    set %response.ContentType = "text/plain"
+    set stream=##class(%Stream.FileCharacter).%New()
+    set sc=stream.LinkToFile(fullname)
+    while 'stream.AtEnd {
+        write stream.Read()
+    }
+    return $$$OK
 }
 
 /// Description
@@ -32,7 +48,35 @@ ClassMethod getTemplates() As %Status
     
     set res = []
     while rset.%Next() {
-        do res.%Push({"name":($p(rset.%Get("Name"), "/", *))})
+        set item = {
+            "name":($p(rset.%Get("Name"), "/", *)),
+            "data": "{}"
+        }
+        if (item.name = "main.tpl") {
+            set data = {
+                "content": "Your content here"
+            }
+            set item.data = data.%ToJSON()
+        }
+        if (item.name = "reminder_body.tpl") {
+            set data = {
+                "name": "John Doe",
+                "session": {
+                    "date": "2025-08-05",
+                    "time": "10:00 AM",
+                    "link": "https://wellivia.com/session/12345"
+                }, 
+                "service": {
+                    "name": "Mindful Yoga Session"
+                },
+                "coach": {
+                    "name": "Sophie Green"
+                },
+                "year": "2025"
+            }
+            set item.data = data.%ToJSON()
+        }
+        do res.%Push(item)
     }
     write res.%ToJSON()
     return $$$OK
