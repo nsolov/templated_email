@@ -2,6 +2,13 @@ name: Cloud Run Deploy
 
 on:
   push:
+    paths-ignore:
+      - README.md
+      - .gitignore
+      - .dockerignore
+      - .gitattributes
+      - imgs/**
+      - .vscode/**
     branches:
     - master
     - main
