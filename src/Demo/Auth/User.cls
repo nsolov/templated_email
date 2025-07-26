@@ -2,7 +2,7 @@ Class Demo.Auth.User Extends %Persistent
 {
 
 /// Description
-Property Email As %String(MAXLEN = 1000);
+Property Email As %String(MAXLEN = 1000) [ Required ];
 
 Property Name As %String(MAXLEN = 1000);
 
@@ -20,7 +20,7 @@ ClassMethod getUser(userjo As %DynamicObject) As Demo.Auth.User
         set user.Email = userjo."email"
         set user.Name = userjo."name"
         set user.Session = $system.Util.CreateGUID()
-        do user.%Save()
+        $$$ThrowOnError(user.%Save())
     }
     return user
 }
