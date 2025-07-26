@@ -130,173 +130,149 @@
     }
 
     
-    function HtmlPreview({ html }) {
-        const iframeRef = React.useRef(null);
+function HtmlPreview({ html }) {
+  const iframeRef = React.useRef(null);
 
-        React.useEffect(() => {
-            if (iframeRef.current) {
-            const doc = iframeRef.current.contentDocument;
-            doc.open();
-            doc.write(html || "");
-            doc.close();
-            }
-        }, [html]);
-
-        return (
-            <iframe
-            ref={iframeRef}
-            className="w-full h-[500px] border rounded bg-white"
-            sandbox=""
-            />
-        );
+  React.useEffect(() => {
+    if (iframeRef.current) {
+      const doc = iframeRef.current.contentDocument;
+      doc.open();
+      doc.write(html || "");
+      doc.close();
     }
-    
+  }, [html]);
 
-    function SendEmailTab({ user }) {
-    const [templates, setTemplates] = useState([]);
-    const [selectedName, setSelectedName] = useState("");
-    const [htmlContent, setHtmlContent] = useState("");
-    const [subject, setSubject] = useState("");
-    const [data, setData] = useState("");
-    const [sending, setSending] = useState(false);
-    const [message, setMessage] = useState("");
+  return (
+    <iframe
+      ref={iframeRef}
+      className="w-full h-[500px] border rounded bg-white"
+      sandbox=""
+    />
+  );
+}
 
-    useEffect(() => {
-        axios.get("/api/templates")
-        .then(res => setTemplates(res.data))
-        .catch(err => console.error("Failed to load templates", err));
-    }, []);
+function SendEmailTab({ user, session }) {
+  const [templates, setTemplates] = React.useState([]);
+  const [selectedTemplate, setSelectedTemplate] = React.useState("");
+  const [htmlContent, setHtmlContent] = React.useState("");
+  const [subject, setSubject] = React.useState("");
+  const [data, setData] = React.useState("");
 
-    const handleTemplateChange = async (name) => {
-        setSelectedName(name);
-        setMessage("");
+  React.useEffect(() => {
+    fetch("/api/templates")
+      .then((res) => res.json())
+      .then((data) => setTemplates(data));
+  }, []);
 
-        try {
-        const [htmlRes, listRes] = await Promise.all([
-            axios.get(`/api/templates/${encodeURIComponent(name)}`, {
-            headers: { Accept: "text/html" }
-            }),
-            axios.get("/api/templates")
-        ]);
+  React.useEffect(() => {
+    if (selectedTemplate) {
+      fetch(`/api/templates/${selectedTemplate}`)
+        .then((res) => res.text())
+        .then((html) => setHtmlContent(html));
 
-        setHtmlContent(htmlRes.data);
-
-        const tplMeta = listRes.data.find(t => t.name === name);
-        if (tplMeta) {
-            setSubject(tplMeta.subject || "");
-            // Преобразуем data в красивый JSON
-            try {
-            const parsed = JSON.parse(tplMeta.data || "{}");
+      fetch("/api/templates")
+        .then((res) => res.json())
+        .then((list) => {
+          const item = list.find((t) => t.name === selectedTemplate);
+          setSubject(item?.subject || "");
+          try {
+            const parsed = JSON.parse(item?.data || "{}");
             setData(JSON.stringify(parsed, null, 2));
-            } catch (e) {
-            setData(tplMeta.data || "{}");
-            }
-        }
-
-        } catch (err) {
-        console.error("Failed to load selected template", err);
-        }
-    };
-
-    const handleSend = async () => {
-        try {
-        setSending(true);
-        setMessage("");
-
-        const session = localStorage.getItem("session_token");
-
-        await axios.post("/api/send", {
-            template: selectedName,
-            subject,
-            data
-        }, {
-            headers: {
-            Authorization: `Bearer ${session}`,
-            "Content-Type": "application/json"
-            }
+          } catch {
+            setData("{}");
+          }
         });
+    }
+  }, [selectedTemplate]);
 
-        setMessage("Email sent successfully!");
-        } catch (err) {
-        console.error("Failed to send email", err);
-        setMessage("Failed to send email.");
-        } finally {
-        setSending(false);
-        }
-    };
+  const handleSend = async () => {
+    const response = await fetch("/api/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": session,
+      },
+      body: JSON.stringify({
+        template: selectedTemplate,
+        subject,
+        data,
+      }),
+    });
 
-    return (
-        <div className="max-w-3xl mx-auto space-y-6">
-        <h2 className="text-2xl font-semibold">Send Email</h2>
+    if (response.ok) {
+      alert("Email sent successfully!");
+    } else {
+      alert("Failed to send email.");
+    }
+  };
 
-        <div>
-            <label className="block mb-1 text-sm font-medium">Select Template</label>
-            <select
-            value={selectedName}
-            onChange={e => handleTemplateChange(e.target.value)}
-            className="w-full p-2 border rounded"
-            >
-            <option value="">-- Select --</option>
-            {templates.map((tpl, idx) => (
-                <option key={idx} value={tpl.name}>{tpl.name}</option>
-            ))}
-            </select>
-        </div>
+  return (
+    <div className="max-w-4xl mx-auto space-y-4 p-4">
+      <div>
+        <label className="block text-sm font-medium mb-1">Select template:</label>
+        <select
+          className="w-full border rounded p-2"
+          value={selectedTemplate}
+          onChange={(e) => setSelectedTemplate(e.target.value)}
+        >
+          <option value="">-- Choose a template --</option>
+          {templates.map((t) => (
+            <option key={t.name} value={t.name}>
+              {t.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {selectedName && (
-            <>
+      {selectedTemplate && (
+        <>
+          <div>
+            <label className="block text-sm font-medium mb-1">Template preview:</label>
+            <HtmlPreview html={htmlContent} />
+          </div>
+
+          <div className="space-y-4">
             <div>
-                <label className="block text-sm font-medium mb-1">Template preview:</label>
-                <HtmlPreview html={htmlContent} />
-            </div>
-
-            <div>
-                <label className="block mb-1 text-sm font-medium">To</label>
-                <input
+              <label className="block text-sm font-medium mb-1">To:</label>
+              <input
+                className="w-full border rounded p-2 bg-gray-100"
                 type="email"
-                value={user.email}
-                disabled
-                className="w-full p-2 border rounded bg-gray-100 text-gray-600"
-                />
+                value={user?.email || ""}
+                readOnly
+              />
             </div>
 
             <div>
-                <label className="block mb-1 text-sm font-medium">Subject</label>
-                <input
+              <label className="block text-sm font-medium mb-1">Subject:</label>
+              <input
+                className="w-full border rounded p-2"
                 type="text"
                 value={subject}
-                onChange={e => setSubject(e.target.value)}
-                className="w-full p-2 border rounded"
-                />
+                onChange={(e) => setSubject(e.target.value)}
+              />
             </div>
 
             <div>
-                <label className="block mb-1 text-sm font-medium">Data (JSON)</label>
-                <textarea
-                rows={10}
+              <label className="block text-sm font-medium mb-1">Data (JSON):</label>
+              <textarea
+                className="w-full border rounded p-2 font-mono text-sm h-40"
                 value={data}
-                onChange={e => setData(e.target.value)}
-                className="w-full p-2 border rounded font-mono text-sm"
-                />
+                onChange={(e) => setData(e.target.value)}
+              />
             </div>
 
             <button
-                onClick={handleSend}
-                disabled={sending}
-                className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={handleSend}
             >
-                {sending ? "Sending..." : "Send"}
+              Send
             </button>
-
-            {message && (
-                <div className="text-center text-sm text-gray-700 mt-2">{message}</div>
-            )}
-            </>
-        )}
-        </div>
-    );
-    }
-
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
     
     
@@ -370,7 +346,7 @@
       {tab === 'templates' ? (
         <TemplatesTab />
         ) : (
-        <SendEmailTab user={user} />
+        <SendEmailTab user={user} session={session} />
         )}
 
     </div>
