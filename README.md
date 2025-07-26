@@ -43,19 +43,24 @@ git clone https://github.com/nsolov/templated_email.git
 docker compose up -d
 ```
 3. Create credentials (http://localhost:52796/csp/user/EnsPortal.Credentials.zen) to access SMTP server
+![set_creds](https://github.com/nsolov/templated_email/blob/master/imgs/set_creds.png)
 4. On Production configuration page for "emails" Business Operation specify your smtp server, port and credentials
 (http://localhost:52796/csp/user/EnsPortal.ProductionConfig.zen?PRODUCTION=Demo.TemplatedEmail.Production)
-5. Run production
-6. Run Test for TestProcess
+![setup_bo](https://github.com/nsolov/templated_email/blob/master/imgs/setup_bo.png)
+6. Run production
+7. Run Test for TestProcess
    - specify your for credentials in **From** field
    - specify your recipient in **To** field
    - select "file" or "string" option
+![test_bo](https://github.com/nsolov/templated_email/blob/master/imgs/test_bo.png)
 
 
-### Online
+### Online Demo
+Look for the link in the OEX Package
+![online_demo](https://github.com/nsolov/templated_email/blob/master/imgs/online_demo.gif)
 
 ## Requirements
--   InterSystems IRIS 2023.1+
+- InterSystems IRIS 2023.1+
 
 ## Contributing
 
