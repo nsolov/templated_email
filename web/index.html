@@ -338,7 +338,12 @@
         </div>
       </div>
 
-      {tab === 'templates' ? <TemplatesTab /> : <div>Coming soon...</div>}
+      {tab === 'templates' ? (
+        <TemplatesTab />
+        ) : (
+        <SendEmailTab user={user} />
+        )}
+
     </div>
   );
 }

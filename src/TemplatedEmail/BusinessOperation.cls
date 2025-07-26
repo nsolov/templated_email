@@ -21,8 +21,12 @@ Method SendEmail(
         $$$ThrowOnError(mailMessage.applySubjectTemplate(pRequest.Data, pRequest.SubjectTemplate, dir_pRequest.SubjectTemplateFilename))
         $$$ThrowOnError(mailMessage.applyBodyTemplate(pRequest.Data, pRequest.BodyTemplate, dir_pRequest.BodyTemplateFilename))
 
-        do mailMessage.setRecipients(pRequest.Recipients)
-        set mailMessage.From = pRequest.FromAddress
+        if (pRequest.Recipients'="") {
+            do mailMessage.setRecipients(pRequest.Recipients)
+        }
+        if (pRequest.FromAddress'="") {
+            set mailMessage.From = pRequest.FromAddress
+        }
         
         return ..Adapter.SendMail(mailMessage)
     } catch ex {
