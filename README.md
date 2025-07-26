@@ -52,7 +52,8 @@ docker compose up -d
    - specify your for credentials in **From** field
    - specify your recipient in **To** field
    - select "file" or "string" option
-![test_bo](https://github.com/nsolov/templated_email/blob/master/imgs/test_bo.png)
+     
+   ![test_bo](https://github.com/nsolov/templated_email/blob/master/imgs/test_bo.png)
 
 
 ### Online Demo
