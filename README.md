@@ -42,12 +42,14 @@ git clone https://github.com/nsolov/templated_email.git
 ```bash
 docker compose up -d
 ```
-3. Create credentials `http://{hostname}:{port}/csp/user/EnsPortal.Credentials.zen` to access SMTP server
+3. Create credentials (http://localhost:52796/csp/user/EnsPortal.Credentials.zen) to access SMTP server
 4. On Production configuration page for "emails" Business Operation specify your smtp server, port and credentials
+(http://localhost:52796/csp/user/EnsPortal.ProductionConfig.zen?PRODUCTION=Demo.TemplatedEmail.Production)
 5. Run production
 6. Run Test for TestProcess
-   - specify your email
-   - select "file" of "string"
+   - specify your for credentials in **From** field
+   - specify your recipient in **To** field
+   - select "file" or "string" option
 
 
 ### Online
