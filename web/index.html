@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wellivia Email Templates</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div id="root"></div>
+
+  <script type="text/babel">
+
+    const { useState, useEffect } = React;
+
+    const GITHUB_CLIENT_ID = "Ov23liFZ0h8KqfjHMB6A"; 
+    const REDIRECT_URI = window.location.origin;
+
+    function LoginScreen() {
+      const loginWithGitHub = () => {
+        const params = new URLSearchParams({
+          client_id: GITHUB_CLIENT_ID,
+          redirect_uri: REDIRECT_URI,
+          scope: "read:user user:email"
+        });
+        window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
+      };
+
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h1 className="text-2xl font-bold mb-4 text-center">Welcome to Wellivia</h1>
+            <p className="text-sm mb-4 text-gray-600 leading-relaxed">
+              This platform helps you manage your email templates easily and securely.
+              You can preview, edit and organize your content in a structured way.
+              Everything is handled in real-time and with simplicity in mind.
+              Your data stays with you and is accessible anytime.
+              Integration with GitHub ensures safe and verified access.
+              Let’s get started by signing in with your GitHub account.
+            </p>
+            <button
+              onClick={loginWithGitHub}
+              className="w-full py-2 px-4 bg-black text-white rounded hover:bg-gray-800"
+            >
+              Login with GitHub
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    function TemplatesTab() {
+      const [templates, setTemplates] = useState([]);
+      const [selectedTemplateName, setSelectedTemplateName] = useState(null);
+      const [templateContent, setTemplateContent] = useState('');
+      const [showModal, setShowModal] = useState(false);
+      const [loading, setLoading] = useState(false);
+
+      useEffect(() => {
+        axios.get('/api/templates')
+          .then(res => setTemplates(res.data))
+          .catch(err => console.error("Failed to load templates", err));
+      }, []);
+
+      const openModal = (name) => {
+        setLoading(true);
+        setSelectedTemplateName(name);
+        axios.get(`/api/templates/${encodeURIComponent(name)}`, {
+          headers: { Accept: 'text/html' }
+        })
+        .then(res => {
+          setTemplateContent(res.data);
+          setShowModal(true);
+        })
+        .catch(() => {
+          setTemplateContent("Failed to load template");
+        })
+        .finally(() => setLoading(false));
+      };
+
+      return (
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Templates</h2>
+          <table className="min-w-full bg-white shadow rounded-lg">
+            <thead>
+              <tr>
+                <th className="text-left p-3 border-b">Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {templates.map((tpl, index) => (
+                <tr key={index}
+                    className="cursor-pointer hover:bg-gray-100"
+                    onClick={() => openModal(tpl.name)}>
+                  <td className="p-3 border-b">{tpl.name}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            Add
+          </button>
+
+          {showModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+              <div className="bg-white p-6 rounded-lg max-w-3xl w-full relative">
+                <button
+                  className="absolute top-2 right-2 text-gray-500 hover:text-black"
+                  onClick={() => setShowModal(false)}
+                >
+                  ✕
+                </button>
+                <h3 className="text-lg font-semibold mb-4">{selectedTemplateName}</h3>
+                <div className="border p-4 overflow-auto max-h-[500px] bg-gray-50">
+                  {loading ? (
+                    <div>Loading...</div>
+                  ) : (
+                    <pre className="text-sm whitespace-pre-wrap">{templateContent}</pre>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function App() {
+      const [user, setUser] = useState(null);
+      const [tab, setTab] = useState("templates");
+
+      // Проверяем, есть ли код в URL
+      useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get("code");
+
+        if (code) {
+          axios.get(`/api/github-auth?code=${encodeURIComponent(code)}`)
+            .then(res => {
+              setUser(res.data); // например: { login: "nikolay", email: "..." }
+              window.history.replaceState({}, "", window.location.pathname); // удаляем ?code из URL
+            })
+            .catch(err => {
+              console.error("Auth failed", err);
+            });
+        }
+      }, []);
+
+      if (!user) {
+        return <LoginScreen />;
+      }
+
+      return (
+        <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow mt-8">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex space-x-4 border-b pb-2">
+              <button
+                className={`font-medium ${tab === 'templates' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+                onClick={() => setTab('templates')}
+              >
+                Templates
+              </button>
+              <button
+                className={`font-medium ${tab === 'send' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+                onClick={() => setTab('send')}
+              >
+                Send Email
+              </button>
+            </div>
+            <div className="text-sm text-gray-500">
+              Signed in as <span className="font-medium">{user.login}</span>
+            </div>
+          </div>
+
+          {tab === 'templates' ? <TemplatesTab /> : <div>Coming soon...</div>}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
