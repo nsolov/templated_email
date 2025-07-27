@@ -19,8 +19,8 @@ npm install templated-email
 2. Create credentials `http://{hostname}:{port}/csp/user/EnsPortal.Credentials.zen` to access SMTP server
 3. Add Business Operation [TemplatedEmail.BusinessOperation](src/TemplatedEmail/BusinessOperation.cls) to your production.
 4. On the Production configuration page, configure the Business Operation as you would for any operation using the EnsLib.EMail.OutboundAdapter:
-- Set the SMTP server, port, credentials, etc.
-- Additionally, you may specify the TemplateFolder setting to define the directory where your templates are stored (optional)
+    - Set the SMTP server, port, credentials, etc.
+    - Additionally, you may specify the TemplateFolder setting to define the directory where your templates are stored (optional)
 5. Use [TemplatedEmail.EmailRequest](src/TemplatedEmail/EmailRequest.cls) to trigger the operation
 
 ### Using from ObjectScript
