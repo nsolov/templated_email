@@ -1,16 +1,9 @@
 Class TemplatedEmail.MailMessage Extends %Net.MailMessage
 {
 
-Method setRecipients(recipients As %String) As %Status
-{
-    set recipients = $translate(recipients,";",",")
-    set rlist = $listfromstring(recipients, ",")
-    for i=1:1:$listlength(rlist) {
-        do ..To.Insert($list(rlist, i))
-    }
-    return $$$OK
-}
-
+/// one of the subjectTemplate or subjectTemplateFile must be specified:
+/// - subjectTemplate - a string containing the inline template
+/// - subjectTemplateFile - full path to the template file
 Method applySubjectTemplate(
 	data As %Library.DynamicObject,
 	subjectTemplate As %String,
@@ -44,6 +37,10 @@ Method applySubjectTemplate(
     }
 }
 
+
+/// one of the bodyTemplate or bodyTemplateFile must be specified:
+/// - bodyTemplate - a string containing the inline template
+/// - bodyTemplateFile - full path to the template file
 Method applyBodyTemplate(
 	data As %Library.DynamicObject,
 	bodyTemplate As %String,
@@ -79,6 +76,17 @@ Method applyBodyTemplate(
     } catch ex {
         return ex.AsStatus()
     }
+}
+
+
+Method setRecipients(recipients As %String) As %Status
+{
+    set recipients = $translate(recipients,";",",")
+    set rlist = $listfromstring(recipients, ",")
+    for i=1:1:$listlength(rlist) {
+        do ..To.Insert($list(rlist, i))
+    }
+    return $$$OK
 }
 
 Storage Default
