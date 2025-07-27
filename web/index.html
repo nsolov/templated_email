@@ -165,7 +165,7 @@
 
                 <button
                     onClick={async () => {
-                    setSubmitting(true);
+                    setSubmitting(false);
                     setAddError(null);
                     const err = validateTemplateName(newName);
                     if (err) {
@@ -256,7 +256,6 @@
         const tplMeta = listRes.data.find(t => t.name === name);
         if (tplMeta) {
             setSubject(tplMeta.subject || "");
-            // Преобразуем data в красивый JSON
             try {
             const parsed = JSON.parse(tplMeta.data || "{}");
             setData(JSON.stringify(parsed, null, 2));

@@ -96,4 +96,18 @@ ClassMethod renderTemplates(
     return sc
 }
 
+/// returns a string containing json with the fields that should be used for the specified template
+ClassMethod getJinjaSchema(template As %String) As %String [ Language = python ]
+{
+    from jinja2schema import infer
+    import json, re
+
+    schema = infer(template)
+    json_str = re.sub(r"<\w+>", '""', str(schema).replace("'", '"'))
+    obj = json.loads(json_str)
+
+    return json.dumps(obj, indent=4, ensure_ascii=False)
+}
+
+
 }

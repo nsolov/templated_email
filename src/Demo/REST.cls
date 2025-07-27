@@ -38,7 +38,6 @@ ClassMethod getTemplate(name As %String) As %Status
     return $$$OK
 }
 
-/// Description
 ClassMethod getTemplates() As %Status
 {
     set stmt = ##class(%SQL.Statement).%New()
@@ -51,12 +50,6 @@ ClassMethod getTemplates() As %Status
         set item = {
             "name":($p(rset.%Get("Name"), "/", *)),
             "data": "{}"
-        }
-        if (item.name = "main.tpl") {
-            set data = {
-                "content": "Your content here"
-            }
-            set item.data = data.%ToJSON()
         }
         if (item.name = "reminder_body.tpl") {
             set data = {
@@ -76,7 +69,17 @@ ClassMethod getTemplates() As %Status
             }
             set item.data = data.%ToJSON()
             set item.subject = "Reminder: {{service.name}} with {{coach.name}} on {{session.date}}"
+        } else {
+            /// read template and generate data 
+            set template = ""
+            set stream=##class(%Stream.FileCharacter).%New()
+            set sc=stream.LinkToFile(..#HOMEDIR_item.name)
+            while 'stream.AtEnd {
+                set template = template _ stream.Read()
+            }
+            set item.data = ##class(TemplatedEmail.TemplateService).getJinjaSchema(template)
         }
+        
         do res.%Push(item)
     }
     write res.%ToJSON()
@@ -177,18 +180,6 @@ ClassMethod auth()
 
 
     return $$$OK
-}
-
-ClassMethod getJinjaSchema(template As %String) As %String [ Language = python ]
-{
-    from jinja2schema import infer
-    import json, re
-
-    schema = infer(template)
-    json_str = re.sub(r"<\w+>", '""', str(schema).replace("'", '"'))
-    obj = json.loads(json_str)
-
-    return json.dumps(obj, indent=4, ensure_ascii=False)
 }
 
 }
