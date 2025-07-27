@@ -1,8 +1,10 @@
 # templated_email
-InterSystems Interoperability Business Operation module for sending templated Jinja2 emails
+InterSystems IRIS module for sending Jinja2-based emails
 
 ## Overview
-This package provides Business Operation and utils to process Jinja2+Markdown Templates and send them via emails.
+This module provides an Interoperability Business Operation and utility classes to render email templates using Jinja2 + Markdown, and send them via email.
+
+It is designed to work both within InterSystems Interoperability productions and from standalone ObjectScript code, making it suitable for a wide range of use cases.
 
 ## Installation
 
@@ -12,12 +14,24 @@ npm install templated-email
 
 ## Quick Start
 
-### Using the package
+### Using the package within Interoperability productions
 1. Install the package
 2. Create credentials `http://{hostname}:{port}/csp/user/EnsPortal.Credentials.zen` to access SMTP server
-3. Add Business Operation [TemplatedEmail.BusinessOperation](src/TemplatedEmail/BusinessOperation.cls) to your production
-4. Use [TemplatedEmail.MailMessage](src/TemplatedEmail/EmailRequest.cls) to start the operation
-5. On Production configuration page for "emails" business operation specify your smtp server, port and credentials
+3. Add Business Operation [TemplatedEmail.BusinessOperation](src/TemplatedEmail/BusinessOperation.cls) to your production.
+4. On the Production configuration page, configure the Business Operation as you would for any operation using the EnsLib.EMail.OutboundAdapter:
+- Set the SMTP server, port, credentials, etc.
+- Additionally, you may specify the TemplateFolder setting to define the directory where your templates are stored (optional)
+5. Use [TemplatedEmail.EmailRequest](src/TemplatedEmail/EmailRequest.cls) to trigger the operation
+
+### Using from ObjectScript
+
+Anywhere in your ObjectScript code where you use %Net.MailMessage, you can replace it with [TemplatedEmail.MailMessage](src/TemplatedEmail/MailMessage.cls).
+
+This extended class provides two additional methods:
+ - applyBodyTemplate() — renders and sets the email body using a Jinja2 + Markdown template
+ - applySubjectTemplate() — renders and sets the email subject using a Jinja2 template
+
+This allows you to easily integrate dynamic templated content into your emails.
 
 ### Components Description
 1. **TemplatedEmail.TemplateService** - utility class that contents methods for templates processing
